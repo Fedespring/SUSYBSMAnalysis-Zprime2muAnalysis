@@ -14,24 +14,33 @@ process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring('fil
 process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag 
 process.GlobalTag.globaltag = cms.string('PlaceHolder::All')
 
 # Configure the MessageLogger ~sanely. Also direct it to let the PAT
 # summary tables be reported -- nice to see how many events had no
 # muons, how many had no "selected"/"clean" muons, etc.
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 5000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1 #5000
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.categories.append('PATSummaryTables')
-process.MessageLogger.cerr.PATSummaryTables = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+process.MessageLogger.cerr.PATSummaryTables = cms.untracked.PSet(limit = cms.untracked.int32(10)) ### instead of -1 federica
+
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
 
 # Define the output file with the output commands defining the
 # branches we want to have in our PAT tuple.
 process.out = cms.OutputModule('PoolOutputModule',
                                fileName = cms.untracked.string('pat.root'),
+                               # fileName = cms.untracked.string('file:PlaceHolder.root'),
                                # If your path in your top-level config is not called 'p', you'll need
                                # to change the next line. In test/PATTuple.py, 'p' is used.
-                               SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p')),
+			       ## save only events passing the full path
+			       ## p is not declared using allowUnscheduled
+			       ##SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p')),
+                               #SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_Mu*')),## something like this??
                                outputCommands = cms.untracked.vstring(
                                    'drop *',
                                    'keep patElectrons_cleanPatElectrons__*',
@@ -52,11 +61,11 @@ process.out = cms.OutputModule('PoolOutputModule',
                                    'keep L1GlobalTriggerReadoutRecord_gtDigis__RECO',
                                    'keep *_hltTriggerSummaryAOD__HLT*',
                                    'keep *_hltTriggerSummaryAOD__REDIGI*',
-                                   'keep edmTriggerResults_TriggerResults__PAT', # for post-tuple filtering on the goodData paths
-                                   'keep PileupSummaryInfos_addPileupInfo_*_*'   # may be needed for pile-up reweighting
+                                   'keep edmTriggerResults_TriggerResults__PAT',         # for post-tuple filtering on the goodData paths
+                                   'keep PileupSummaryInfos_addPileupInfo_*_*'           # may be needed for pile-up reweighting   
                                    )
                                )
-process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out) 
 
 # Load the PAT modules and sequences, and configure them as we
 # need. See the individual functions for their documentation.  MC use
@@ -72,33 +81,30 @@ process.load('PhysicsTools.PatAlgos.patSequences_cff')
 # in output module anyway). This may break jet-tau cleaning, but not
 # using the jets yet anyway. This should all be fixed with a
 # consistent set of 52 samples, as this only occurs for 51 MC input.
-del process.patTaus.tauIDSources.againstElectronMVA
+del process.patTaus.tauIDSources.againstElectronMVA5raw
 del process.patTaus.tauIDSources.againstMuonMedium
-process.cleanPatTaus.preselection = process.cleanPatTaus.preselection.value().replace('againstMuonMedium', 'againstMuonTight')
+process.cleanPatTaus.preselection = process.cleanPatTaus.preselection.value().replace('againstMuonMedium', 'againstMuonTight') #now Tight is the default choice
 
-from PATTools import pruneMCLeptons, addMuonMCClassification, addHEEPId
-pruneMCLeptons(process, use_sim=True) # need to decide whether to move AODOnly() call in here, if so use_sim should just be set False
-addMuonMCClassification(process)
+from PATTools import addHEEPId
 addHEEPId(process)
 
-from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger, switchOnTriggerMatchEmbedding
-switchOnTrigger(process)
+#from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger, switchOnTriggerMatchEmbedding
+#switchOnTrigger(process) # Add full trigger information
+from PhysicsTools.PatAlgos.tools.trigTools import *
+switchOnTrigger( process )
 process.load('SUSYBSMAnalysis.Zprime2muAnalysis.hltTriggerMatch_cfi')
-switchOnTriggerMatchEmbedding(process, triggerMatchers=['muonTriggerMatchHLTMuons'])
+switchOnTriggerMatchEmbedding(process, triggerMatchers=['muonTriggerMatchHLTMuons']) # Add embedded example trigger matching information
 # add L1 algorithms' collection
-process.patTrigger.addL1Algos = cms.bool( True ) # default: 'False'
+#process.patTrigger.addL1Algos = cms.bool( True ) # default: 'False' #?
 # call once more to update the event content according to the changed parameters (?)
-switchOnTrigger(process)
-process.out.outputCommands += [
-    'keep *_cleanPatMuonsTriggerMatch_*_*',
-    'keep *_patTrigger_*_*', # keep these two for now, for Level-1 decisions
-    'keep *_patTriggerEvent_*_*',
-]
+#switchOnTrigger(process)#?
+process.out.outputCommands += ['keep *_cleanPatMuonsTriggerMatch_*_*',
+                               'keep *_patTrigger_*_*', # keep these two for now, for Level-1 decisions
+                               'keep *_patTriggerEvent_*_*']
 
 # Some extra configuration of the PAT.
 
-# Embed the tracker tracks (by default, every other track is already
-# embedded).
+# Embed the tracker tracks (by default, every other track is already embedded).
 process.patMuons.embedTrack = True
 
 # Follow VBTF for now in using the beamspot for "correcting" dxy,
@@ -115,6 +121,7 @@ process.selectedPatMuons.cut = 'isGlobalMuon || isTrackerMuon'
 # electrons, need to change appropriately in your top-level config
 # (perhaps using countPatLeptons instead).
 process.countPatMuons.minNumber = 1
+
 
 # Instead of filtering out events at PAT-tupling time based on things
 # like GoodVertex and NoScraping, schedule separate paths for all the
@@ -135,21 +142,21 @@ process.goodDataPrimaryVertexFilter = cms.Path(process.primaryVertexFilter)
 process.goodDataNoScraping = cms.Path(process.noscraping)
 process.goodDataAll = cms.Path(process.hltPhysicsDeclared * process.primaryVertexFilter * process.noscraping)
 
-# Add MET and jets. Configuration to be revisited later.
-from PhysicsTools.PatAlgos.tools.metTools import addPfMET, addTcMET
-addPfMET(process)
-addTcMET(process)
+# Add MET and jets. Maybe it's not necessary to add a Jet/MET collection, we could simpy take de default which should be the same
+from PhysicsTools.PatAlgos.tools.metTools import addMETCollection 
+addMETCollection(process, labelName='patMETsPF', metSource='pfMetT1')
 
-from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
+from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection #to be checked
 switchJetCollection(process, 
-                    cms.InputTag('ak5PFJets'),   
-                    doJTA            = True,            
-                    doBTagging       = True,            
-                    jetCorrLabel     = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute']),  
-                    doType1MET       = False,            
-                    genJetCollection = cms.InputTag("ak5GenJets"),
-                    doJetID      = False,
-                    jetIdLabel   = "ak5"
+                    jetSource = cms.InputTag('ak5PFJets'),
+                    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative','L3Absolute']), 'Type-1'),
+                    btagDiscriminators = ['jetBProbabilityBJetTags',
+                                          'jetProbabilityBJetTags',
+                                          'trackCountingHighPurBJetTags',
+                                          'trackCountingHighEffBJetTags',
+                                          'simpleSecondaryVertexHighEffBJetTags',
+                                          'simpleSecondaryVertexHighPurBJetTags',
+                                          'combinedSecondaryVertexBJetTags'],
                     )
 
 # Make a collection of muons with our final selection applied so that

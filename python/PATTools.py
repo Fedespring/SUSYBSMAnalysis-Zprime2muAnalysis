@@ -2,18 +2,10 @@
 
 import FWCore.ParameterSet.Config as cms
 
-def pruneMCLeptons(process, use_sim=False):
+def pruneMCLeptons(process):
     process.load('SUSYBSMAnalysis.Zprime2muAnalysis.PrunedMCLeptons_cfi')
     obj = process.prunedMCLeptons
     
-    if use_sim:
-        # For muon and electron MC matching, want to be able to match to
-        # decays-in-flight produced in SIM (whether by GEANT or FastSim),
-        # so make some genParticles out of the simTracks.
-        process.load('SUSYBSMAnalysis.Zprime2muAnalysis.GenPlusSim_cfi')
-        process.prunedMCLeptons.src = 'genSimLeptons'
-        obj = process.genSimLeptons * process.prunedMCLeptons
-
     for x in (process.muonMatch, process.electronMatch):
         # Switch to Use the new GEN+SIM particles created above.
         x.matched = cms.InputTag('prunedMCLeptons')
@@ -26,58 +18,7 @@ def pruneMCLeptons(process, use_sim=False):
         x.maxDPtRel = 1e6
 
     process.patDefaultSequence = cms.Sequence(obj * process.patDefaultSequence._seq)
-
-def addMuonMCClassification(process):
-    # Run and embed in the patMuons the classification of muons by
-    # their GEANT hits.
-    process.load('MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi')
-    from MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi import addUserData as addClassByHits
-    addClassByHits(process.patMuons, extraInfo=True)
-    process.patDefaultSequence = cms.Sequence(process.muonClassificationByHits * process.patDefaultSequence._seq)
-
-def removeMuonMCClassification(process):
-    # Some magic to undo the use of MC added above in
-    # addMuonMCClassification.
-    
-    process.patDefaultSequence.remove(process.muonClassificationByHits)
-
-    # Remove the InputTags that were added to the userData of the
-    # patMuons for the muonClassification.
-    def filter(v, s):
-        v2 = []
-        for x in v:
-            if type(x) == cms.InputTag and x.moduleLabel != s:
-                v2.append(x)
-        return v2
-    
-    i = process.patMuons.userData.userInts.src.value()
-    f = process.patMuons.userData.userFloats.src.value()
-    for s in ['classByHitsGlb', 'classByHitsTM', 'classByHitsTMLSAT', 'classByHitsSta']:
-        i = filter(i, s)
-        f = filter(f, s)
-    process.patMuons.userData.userInts.src = i
-    process.patMuons.userData.userFloats.src = f
-
-def removeSimLeptons(process):
-    if hasattr(process, 'genSimLeptons'):
-        process.patDefaultSequence.remove(process.genSimLeptons)
-        if hasattr(process, 'prunedMCLeptons'):
-            process.prunedMCLeptons.src = 'genParticles'
-
-def removePrunedMCLeptons(process):
-    if hasattr(process, 'prunedMCLeptons'):
-        process.patDefaultSequence.remove(process.prunedMCLeptons)
-
-def removeMCUse(process):
-    # Remove anything that requires MC truth.
-    from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
-    removeMCMatching(process, ['All'])
-    removeMCMatching(process, ['METs'], postfix='TC')
-    removeMCMatching(process, ['METs'], postfix='PF')
-    removeMuonMCClassification(process)
-    removeSimLeptons(process)
-    removePrunedMCLeptons(process)
-    
+ 
 def switchHLTProcessName(process, name):
     # As the correct trigger process name is different from the
     # default "HLT" for some MC samples, this is a simple tool to
@@ -92,12 +33,16 @@ def addHEEPId(process):
     from SHarper.HEEPAnalyzer.HEEPSelectionCuts_cfi import heepBarrelCuts, heepEndcapCuts
     from SHarper.HEEPAnalyzer.HEEPEventParameters_cfi import heepEventPara
     process.HEEPId = cms.EDProducer('HEEPIdValueMapProducer',
-                                    eleLabel = cms.InputTag('gsfElectrons'),
+                                    eleLabel = cms.InputTag('gedGsfElectrons'),
                                     barrelCuts = heepBarrelCuts,
                                     endcapCuts = heepEndcapCuts,
                                     eleIsolEffectiveAreas = heepEventPara.eleIsolEffectiveAreas,
                                     applyRhoCorrToEleIsol = heepEventPara.applyRhoCorrToEleIsol,
-                                    eleRhoCorrLabel = heepEventPara.eleRhoCorrTag,
+                                    #eleRhoCorrLabel = heepEventPara.eleRhoCorrTag,#? possible options
+				    	#eleRhoCorrTag = cms.InputTag("fixedGridRhoFastjetAll"),
+    					#eleRhoCorr2012Tag = cms.InputTag("kt6PFJets","rho"),
+				    eleRhoCorrLabel = cms.InputTag("kt6PFJetsForIsolation","rho"),
+				    verticesLabel = cms.InputTag("offlinePrimaryVerticesWithBS"),
                                     writeIdAsInt = cms.bool(True),
                                     )
 
@@ -114,11 +59,6 @@ def addHEEPId(process):
     
     process.patDefaultSequence.replace(process.patElectrons, process.kt6PFJetsForIsolation * process.HEEPId * process.patElectrons)
 
-def AODOnly(process):
-    from PhysicsTools.PatAlgos.tools.coreTools import restrictInputToAOD
-    restrictInputToAOD(process)
-    removeMuonMCClassification(process) # throw the baby out with the bathwater...
-    removeSimLeptons(process)
 
 # Some scraps to aid in debugging that can be put in your top-level
 # config (could be turned into functions a la the above):

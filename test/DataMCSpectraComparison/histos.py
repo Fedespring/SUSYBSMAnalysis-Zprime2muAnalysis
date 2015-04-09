@@ -3,8 +3,18 @@
 import sys, os, FWCore.ParameterSet.Config as cms
 from SUSYBSMAnalysis.Zprime2muAnalysis.Zprime2muAnalysis_cff import switch_hlt_process_name
 from SUSYBSMAnalysis.Zprime2muAnalysis.Zprime2muAnalysis_cfg import process
-#process.source.fileNames = ['/store/user/slava/DYToMuMu_M-2000_CT10_TuneZ2star_8TeV-powheg-pythia6/datamc_dy2000/ecac376f8fa7ccc229aaa06d757d785a/pat_1_1_G72.root']
-#process.maxEvents.input = 100
+process.source.fileNames =['root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_1.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_10.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_2.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_3.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_4.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_5.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_6.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_7.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_8.root',
+                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_9.root']
+
+process.maxEvents.input = -1
 from SUSYBSMAnalysis.Zprime2muAnalysis.hltTriggerMatch_cfi import trigger_match, prescaled_trigger_match, trigger_paths, prescaled_trigger_paths, overall_prescale, offline_pt_threshold, prescaled_offline_pt_threshold
 
 # Since the prescaled trigger comes with different prescales in
@@ -17,7 +27,7 @@ process.PrescaleToCommon.overall_prescale = overall_prescale
 # The histogramming module that will be cloned multiple times below
 # for making histograms with different cut/dilepton combinations.
 from SUSYBSMAnalysis.Zprime2muAnalysis.HistosFromPAT_cfi import HistosFromPAT
-HistosFromPAT.leptonsFromDileptons = True
+HistosFromPAT.leptonsFromDileptons = False ##True
 
 # These modules define the basic selection cuts. For the monitoring
 # sets below, we don't need to define a whole new module, since they
@@ -53,14 +63,14 @@ cuts = {
 #    'VBTF'     : VBTFSelection,
 #    'OurOld'   : OurSelectionOld,
 #    'OurEPS'   : OurSelection2011EPS,
-    'OurNew'   : OurSelectionNew,
+    #'OurNew'   : OurSelectionNew,
     'Our2012'  : OurSelectionDec2012,
-    'OurNoIso' : OurSelectionDec2012,
-    'EmuVeto'  : OurSelectionDec2012,
+    #'OurNoIso' : OurSelectionDec2012,
+    #'EmuVeto'  : OurSelectionDec2012,
     'Simple'   : OurSelectionDec2012, # The selection cuts in the module listed here are ignored below.
 #    'VBTFMuPrescaled' : VBTFSelection,
-    'OurMuPrescaledNew'  : OurSelectionNew,
-    'OurMuPrescaled2012' : OurSelectionDec2012
+    #'OurMuPrescaledNew'  : OurSelectionNew,
+    #'OurMuPrescaled2012' : OurSelectionDec2012 #doesn't work :( #to be checked 
     }
 
 # Loop over all the cut sets defined and make the lepton, allDilepton
@@ -244,19 +254,24 @@ if 'gogo' in sys.argv:
     from SUSYBSMAnalysis.Zprime2muAnalysis.cmsswtools import set_events_to_process
     set_events_to_process(process, [(run, event)])
 
+f = file('outfileAOD', 'w')
+f.write(process.dumpPython())
+f.close()
+
 if __name__ == '__main__' and 'submit' in sys.argv:
     crab_cfg = '''
 [CRAB]
 jobtype = cmssw
-scheduler = condor
-
+scheduler = remoteGlidein
+use_server = 0
 [CMSSW]
 datasetpath = %(ana_dataset)s
-dbs_url = https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet
+#dbs_url = https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet
+dbs_url=phys03
 pset = histos_crab.py
 get_edm_output = 1
 job_control
-
+use_dbs3=1
 [USER]
 ui_working_dir = crab/crab_ana_datamc_%(name)s
 return_data = 1
@@ -336,7 +351,7 @@ lumis_per_job = 500
         # Set crab_cfg for MC.
         crab_cfg = crab_cfg.replace('job_control','''
 total_number_of_events = -1
-events_per_job = 100000
+events_per_job = 50000
     ''')
 
         from SUSYBSMAnalysis.Zprime2muAnalysis.MCSamples import samples
@@ -353,14 +368,19 @@ events_per_job = 100000
 
             if combine_dy_samples and (sample.name == 'zmumu' or 'dy' in sample.name):
                 mass_limits = {
-                    'zmumu'    : (  20,    120),
-                    'dy120_c1' : ( 120,    200),
-                    'dy200_c1' : ( 200,    500),
-                    'dy500_c1' : ( 500,    800),
-                    'dy800_c1' : ( 800,   1000),
-                    'dy1000_c1': (1000,   1500),
-                    'dy1500_c1': (1500,   2000),
-                    'dy2000_c1': (2000, 100000),
+                    'dy50'     : (  50,    120),
+                    'dy120'    : ( 120,    200),
+                    'dy200'    : ( 200,    400),
+                    'dy400'    : ( 400,    800),
+                    'dy800'    : ( 800,   1400),
+                    'dy1400'   : (1400,   2300),
+                    'dy2300'   : (2300,   3500),
+                    'dy3500'   : (3500,   4500),
+                    'dy4500'   : (4500,   6000),
+                    'dy6000'   : (6000,   7500),
+                    'dy7500'   : (7500,   8500),
+                    'dy8500'   : (8500,   9500),
+                    'dy3500'   : (9500, 100000),
                     }
                 lo,hi = mass_limits[sample.name]
                 from SUSYBSMAnalysis.Zprime2muAnalysis.DYGenMassFilter_cfi import dy_gen_mass_cut

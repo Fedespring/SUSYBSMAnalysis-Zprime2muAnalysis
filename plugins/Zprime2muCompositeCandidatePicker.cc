@@ -1,3 +1,4 @@
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -269,6 +270,7 @@ void Zprime2muCompositeCandidatePicker::produce(edm::Event& event, const edm::Ev
     new_cands->erase(new_cands->begin() + max_candidates, new_cands->end());
   
   event.put(new_cands);
+  //std::cout << " Event Run/Lumi/Event " <<  event.id().run() << " / " << event.luminosityBlock() << " / " << event.id().event() << std::endl;
 }
 
 DEFINE_FWK_MODULE(Zprime2muCompositeCandidatePicker);
