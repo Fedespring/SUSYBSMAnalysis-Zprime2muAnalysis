@@ -3,18 +3,11 @@
 import sys, os, FWCore.ParameterSet.Config as cms
 from SUSYBSMAnalysis.Zprime2muAnalysis.Zprime2muAnalysis_cff import switch_hlt_process_name
 from SUSYBSMAnalysis.Zprime2muAnalysis.Zprime2muAnalysis_cfg import process
-process.source.fileNames =['root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_1.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_10.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_2.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_3.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_4.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_5.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_6.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_7.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_8.root',
-                           'root://cms-xrd-global.cern.ch//store/user/federica/PATTuple/ZprimeToMuMu_M-5000_Tune4C_13TeV-pythia8/ZprimeToMuMu_M-5000_PU20BX25/150223_144430/0000/pat_9.root']
-
-process.maxEvents.input = -1
+#process.source.fileNames = ['/store/user/slava/DYToMuMu_M-2000_CT10_TuneZ2star_8TeV-powheg-pythia6/datamc_dy2000/ecac376f8fa7ccc229aaa06d757d785a/pat_1_1_G72.root']
+#process.source.fileNames = ['/store/user/slava/ZZ_TuneZ2star_8TeV_pythia6_tauola/datamc_zz/ecac376f8fa7ccc229aaa06d757d785a/pat_11_1_hGJ.root']
+process.source.fileNames = ['file:/uscms/home/valuev/nobackup/crab_dirs/crab_0_131125_051235/res/pickevents_1_1_Vvx.root',
+                            'file:/uscms/home/valuev/nobackup/crab_dirs/crab_0_131125_051235/res/pickevents_2_1_tgB.root']
+process.maxEvents.input = 1000
 from SUSYBSMAnalysis.Zprime2muAnalysis.hltTriggerMatch_cfi import trigger_match, prescaled_trigger_match, trigger_paths, prescaled_trigger_paths, overall_prescale, offline_pt_threshold, prescaled_offline_pt_threshold
 
 # Since the prescaled trigger comes with different prescales in
@@ -27,7 +20,7 @@ process.PrescaleToCommon.overall_prescale = overall_prescale
 # The histogramming module that will be cloned multiple times below
 # for making histograms with different cut/dilepton combinations.
 from SUSYBSMAnalysis.Zprime2muAnalysis.HistosFromPAT_cfi import HistosFromPAT
-HistosFromPAT.leptonsFromDileptons = False ##True
+HistosFromPAT.leptonsFromDileptons = True
 
 # These modules define the basic selection cuts. For the monitoring
 # sets below, we don't need to define a whole new module, since they
@@ -60,17 +53,17 @@ dils = [
 # that doesn't have a trigger match, need to re-add a hltHighLevel
 # filter somewhere below.
 cuts = {
-#    'VBTF'     : VBTFSelection,
-#    'OurOld'   : OurSelectionOld,
-#    'OurEPS'   : OurSelection2011EPS,
-    #'OurNew'   : OurSelectionNew,
+##    'VBTF'     : VBTFSelection,
+##    'OurOld'   : OurSelectionOld,
+##    'OurEPS'   : OurSelection2011EPS,
+    'OurNew'   : OurSelectionNew,
     'Our2012'  : OurSelectionDec2012,
-    #'OurNoIso' : OurSelectionDec2012,
-    #'EmuVeto'  : OurSelectionDec2012,
+    'OurNoIso' : OurSelectionDec2012,
+    'EmuVeto'  : OurSelectionDec2012,
     'Simple'   : OurSelectionDec2012, # The selection cuts in the module listed here are ignored below.
-#    'VBTFMuPrescaled' : VBTFSelection,
-    #'OurMuPrescaledNew'  : OurSelectionNew,
-    #'OurMuPrescaled2012' : OurSelectionDec2012 #doesn't work :( #to be checked 
+##    'VBTFMuPrescaled' : VBTFSelection,
+    'OurMuPrescaledNew'  : OurSelectionNew,
+    'OurMuPrescaled2012' : OurSelectionDec2012
     }
 
 # Loop over all the cut sets defined and make the lepton, allDilepton
@@ -131,10 +124,14 @@ for cut_name, Selection in cuts.iteritems():
             alldil.loose_cut = 'isGlobalMuon && pt > 20.'
             alldil.tight_cut = ''
             dil.max_candidates = 100
+            dil.sort_by_pt = True
             dil.do_remove_overlap = False
-            delattr(dil, 'back_to_back_cos_angle_min')
-            delattr(dil, 'vertex_chi2_max')
-            delattr(dil, 'dpt_over_pt_max')
+            if hasattr(dil, 'back_to_back_cos_angle_min'):
+                delattr(dil, 'back_to_back_cos_angle_min')
+            if hasattr(dil, 'vertex_chi2_max'):
+                delattr(dil, 'vertex_chi2_max')
+            if hasattr(dil, 'dpt_over_pt_max'):
+                delattr(dil, 'dpt_over_pt_max')
         elif cut_name == 'OurNoIso':
             alldil.loose_cut = alldil.loose_cut.value().replace(' && isolationR03.sumPt / innerTrack.pt < 0.10', '')
         elif 'MuPrescaled' in cut_name:
@@ -173,32 +170,38 @@ def ntuplify(process, fill_gen_info=False):
         from SUSYBSMAnalysis.Zprime2muAnalysis.HardInteraction_cff import hardInteraction
         process.SimpleNtupler.hardInteraction = hardInteraction
 
-    process.pathSimple *= process.SimpleNtupler * process.SimpleNtuplerEmu
+    if hasattr(process, 'pathSimple'):
+        process.pathSimple *= process.SimpleNtupler * process.SimpleNtuplerEmu
 
 def printify(process):
     process.MessageLogger.categories.append('PrintEvent')
 
     process.load('HLTrigger.HLTcore.triggerSummaryAnalyzerAOD_cfi')
     process.triggerSummaryAnalyzerAOD.inputTag = cms.InputTag('hltTriggerSummaryAOD','','HLT')
-    process.pathSimple *= process.triggerSummaryAnalyzerAOD
+    if hasattr(process, 'pathSimple'):
+        process.pathSimple *= process.triggerSummaryAnalyzerAOD
 
     process.PrintOriginalMuons = cms.EDAnalyzer('PrintEvent', muon_src = cms.InputTag('cleanPatMuonsTriggerMatch'), trigger_results_src = cms.InputTag('TriggerResults','','HLT'))
-    process.pathSimple *= process.PrintOriginalMuons
+    if hasattr(process, 'pathSimple'):
+        process.pathSimple *= process.PrintOriginalMuons
 
     pe = process.PrintEventSimple = cms.EDAnalyzer('PrintEvent', dilepton_src = cms.InputTag('SimpleMuonsPlusMuonsMinus'))
-    process.pathSimple *= process.PrintEventSimple
+    if hasattr(process, 'pathSimple'):
+        process.pathSimple *= process.PrintEventSimple
 
     #- 2011-2012 selection (Nlayers > 8)
-    #process.PrintEventOurNew = pe.clone(dilepton_src = cms.InputTag('OurNewMuonsPlusMuonsMinus'))
-    #process.PrintEventOurNewSS = pe.clone(dilepton_src = cms.InputTag('OurNewMuonsSameSign'))
-    #process.PrintEventOurNewEmu = pe.clone(dilepton_src = cms.InputTag('OurNewMuonsElectronsOppSign'))
-    #process.pathOurNew *= process.PrintEventOurNew * process.PrintEventOurNewSS * process.PrintEventOurNewEmu
+    # if hasattr(process, 'pathOurNew'):
+    #     process.PrintEventOurNew = pe.clone(dilepton_src = cms.InputTag('OurNewMuonsPlusMuonsMinus'))
+    #     process.PrintEventOurNewSS = pe.clone(dilepton_src = cms.InputTag('OurNewMuonsSameSign'))
+    #     process.PrintEventOurNewEmu = pe.clone(dilepton_src = cms.InputTag('OurNewMuonsElectronsOppSign'))
+    #     process.pathOurNew *= process.PrintEventOurNew * process.PrintEventOurNewSS * process.PrintEventOurNewEmu
 
     #- December 2012 selection (Nlayers > 5, re-tuned TuneP, dpT/pT < 0.3)
-    process.PrintEventOur2012    = pe.clone(dilepton_src = cms.InputTag('Our2012MuonsPlusMuonsMinus'))
-    process.PrintEventOur2012SS  = pe.clone(dilepton_src = cms.InputTag('Our2012MuonsSameSign'))
-    process.PrintEventOur2012Emu = pe.clone(dilepton_src = cms.InputTag('Our2012MuonsElectronsOppSign'))
-    process.pathOur2012 *= process.PrintEventOur2012 * process.PrintEventOur2012SS * process.PrintEventOur2012Emu
+    if hasattr(process, 'pathOur2012'):
+        process.PrintEventOur2012    = pe.clone(dilepton_src = cms.InputTag('Our2012MuonsPlusMuonsMinus'))
+        process.PrintEventOur2012SS  = pe.clone(dilepton_src = cms.InputTag('Our2012MuonsSameSign'))
+        process.PrintEventOur2012Emu = pe.clone(dilepton_src = cms.InputTag('Our2012MuonsElectronsOppSign'))
+        process.pathOur2012 *= process.PrintEventOur2012 * process.PrintEventOur2012SS * process.PrintEventOur2012Emu
 
 def check_prescale(process, trigger_paths, hlt_process_name='HLT'):
     process.load('SUSYBSMAnalysis.Zprime2muAnalysis.CheckPrescale_cfi')
@@ -206,7 +209,7 @@ def check_prescale(process, trigger_paths, hlt_process_name='HLT'):
     process.pCheckPrescale = cms.Path(process.CheckPrescale)
 
 def for_data(process):
-    process.GlobalTag.globaltag = 'GR_P_V42_AN2::All'
+    process.GlobalTag.globaltag = 'FT_53_V21_AN6::All'
     ntuplify(process)
     check_prescale(process, trigger_paths)
 
@@ -254,26 +257,22 @@ if 'gogo' in sys.argv:
     from SUSYBSMAnalysis.Zprime2muAnalysis.cmsswtools import set_events_to_process
     set_events_to_process(process, [(run, event)])
 
-f = file('outfileAOD', 'w')
-f.write(process.dumpPython())
-f.close()
-
 if __name__ == '__main__' and 'submit' in sys.argv:
     crab_cfg = '''
 [CRAB]
 jobtype = cmssw
-scheduler = remoteGlidein
-use_server = 0
+scheduler = condor
+
 [CMSSW]
 datasetpath = %(ana_dataset)s
-#dbs_url = https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet
-dbs_url=phys03
+dbs_url = https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet
 pset = histos_crab.py
 get_edm_output = 1
 job_control
-use_dbs3=1
+
 [USER]
 ui_working_dir = crab/crab_ana_datamc_%(name)s
+#ui_working_dir = crab/crab_lis_datamc_%(name)s
 return_data = 1
 '''
 
@@ -284,19 +283,23 @@ return_data = 1
         from SUSYBSMAnalysis.Zprime2muAnalysis.goodlumis import *
 
         dataset_details = [
-            ('SingleMuRun2012A_13Jul2012_190450_193751', '/SingleMu/slava-datamc_SingleMuRun2012A-13Jul2012_190450_193751_20121011073628-426a2d966f78bce6bde85f3ed41c07ba/USER'),
-            ('SingleMuRun2012A_06Aug2012_190782_190949', '/SingleMu/slava-datamc_SingleMuRun2012A-recover-06Aug2012_190782_190949_20121011120430-426a2d966f78bce6bde85f3ed41c07ba/USER'),
-            ('SingleMuRun2012B_13Jul2012_193752_196531', '/SingleMu/slava-datamc_SingleMuRun2012B-13Jul2012_193752_196531_20121012044921-426a2d966f78bce6bde85f3ed41c07ba/USER'),
-            ('SingleMuRun2012C_24Aug2012_197556_198913', '/SingleMu/slava-datamc_SingleMuRun2012C-24Aug2012_197556_198913_20121012113325-426a2d966f78bce6bde85f3ed41c07ba/USER'),
-            ('SingleMuRun2012C_Prompt_198934_203772',    '/SingleMu/slava-datamc_SingleMuRun2012C-Prompt_198934_203772_20121015023300-8627c6a48d2426dec4aa557620a039a0/USER'),
-            ('SingleMuRun2012D_Prompt_203773_204563',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_203773_204563_20121016104501-8627c6a48d2426dec4aa557620a039a0/USER'),
-            ('SingleMuRun2012D_Prompt_204564_206087',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_204564_206087_20121029121943-8627c6a48d2426dec4aa557620a039a0/USER'),
-            ('SingleMuRun2012D_Prompt_206066_206066',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_206066_206066_20130115083834-5fce88899b8479b9df01fc5ef8a1e921/USER'),
-            ('SingleMuRun2012D-Prompt_206088_206539',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_206088_206539_20121112085341-8627c6a48d2426dec4aa557620a039a0/USER'),
-            ('SingleMuRun2012D-Prompt_206540_207900',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_206540_207900_20121203042806-8627c6a48d2426dec4aa557620a039a0/USER'),
-            ('SingleMuRun2012D-Prompt_207901_208380',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_207901_208380_20121212090713-5fce88899b8479b9df01fc5ef8a1e921/USER'),
-            ('SingleMuRun2012D-Prompt_208381_208700',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_208381_208700_20121217043712-5fce88899b8479b9df01fc5ef8a1e921/USER'),
-#            ('SingleMuRun2012C-11Dec2012_201191_201191', '/SingleMu/slava-datamc_SingleMuRun2012C-EcalRecover_11Dec2012_201191_201191_20130115101201-5fce88899b8479b9df01fc5ef8a1e921/USER'),
+#            ('SingleMuRun2012A_13Jul2012_190450_193751', '/SingleMu/slava-datamc_SingleMuRun2012A-13Jul2012_190450_193751_20121011073628-426a2d966f78bce6bde85f3ed41c07ba/USER'),
+#            ('SingleMuRun2012A_06Aug2012_190782_190949', '/SingleMu/slava-datamc_SingleMuRun2012A-recover-06Aug2012_190782_190949_20121011120430-426a2d966f78bce6bde85f3ed41c07ba/USER'),
+#            ('SingleMuRun2012B_13Jul2012_193752_196531', '/SingleMu/slava-datamc_SingleMuRun2012B-13Jul2012_193752_196531_20121012044921-426a2d966f78bce6bde85f3ed41c07ba/USER'),
+#            ('SingleMuRun2012C_24Aug2012_197556_198913', '/SingleMu/slava-datamc_SingleMuRun2012C-24Aug2012_197556_198913_20121012113325-426a2d966f78bce6bde85f3ed41c07ba/USER'),
+#            ('SingleMuRun2012C_Prompt_198934_203772',    '/SingleMu/slava-datamc_SingleMuRun2012C-Prompt_198934_203772_20121015023300-8627c6a48d2426dec4aa557620a039a0/USER'),
+#            ('SingleMuRun2012D_Prompt_203773_204563',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_203773_204563_20121016104501-8627c6a48d2426dec4aa557620a039a0/USER'),
+#            ('SingleMuRun2012D_Prompt_204564_206087',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_204564_206087_20121029121943-8627c6a48d2426dec4aa557620a039a0/USER'),
+#            ('SingleMuRun2012D_Prompt_206066_206066',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_206066_206066_20130115083834-5fce88899b8479b9df01fc5ef8a1e921/USER'),
+#            ('SingleMuRun2012D-Prompt_206088_206539',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_206088_206539_20121112085341-8627c6a48d2426dec4aa557620a039a0/USER'),
+#            ('SingleMuRun2012D-Prompt_206540_207900',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_206540_207900_20121203042806-8627c6a48d2426dec4aa557620a039a0/USER'),
+#            ('SingleMuRun2012D-Prompt_207901_208380',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_207901_208380_20121212090713-5fce88899b8479b9df01fc5ef8a1e921/USER'),
+#            ('SingleMuRun2012D-Prompt_208381_208700',    '/SingleMu/slava-datamc_SingleMuRun2012D-Prompt_208381_208700_20121217043712-5fce88899b8479b9df01fc5ef8a1e921/USER'),
+##            ('SingleMuRun2012C-11Dec2012_201191_201191', '/SingleMu/slava-datamc_SingleMuRun2012C-EcalRecover_11Dec2012_201191_201191_20130115101201-5fce88899b8479b9df01fc5ef8a1e921/USER'),
+            ('SingleMuRun2012A_22Jan2013_190450_193751', '/SingleMu/valuev-datamc_SingleMuRun2012A-22Jan2013_190450_193751_20130927112633-5bb766addb1a9ca9d22a199ff7651267/USER'),
+            ('SingleMuRun2012B_22Jan2013_193752_196531', '/SingleMu/valuev-datamc_SingleMuRun2012B-22Jan2013_193752_196531_20131007025340-5bb766addb1a9ca9d22a199ff7651267/USER'),
+            ('SingleMuRun2012C_22Jan2013_197556_203772', '/SingleMu/valuev-datamc_SingleMuRun2012C-22Jan2013_197556_203772_20131009023330-5bb766addb1a9ca9d22a199ff7651267/USER'),
+            ('SingleMuRun2012D_22Jan2013_203773_208700', '/SingleMu/valuev-datamc_SingleMuRun2012D-22Jan2013_203773_208700_20131008040852-5bb766addb1a9ca9d22a199ff7651267/USER'),
             ]
 
         lumi_lists = [
@@ -328,7 +331,7 @@ return_data = 1
 
             job_control = '''
 total_number_of_lumis = -1
-lumis_per_job = 500
+lumis_per_job = 400
 %(lumi_mask)s''' % locals()
 
             new_crab_cfg = new_crab_cfg.replace('job_control', job_control)
@@ -351,7 +354,7 @@ lumis_per_job = 500
         # Set crab_cfg for MC.
         crab_cfg = crab_cfg.replace('job_control','''
 total_number_of_events = -1
-events_per_job = 50000
+events_per_job = 100000
     ''')
 
         from SUSYBSMAnalysis.Zprime2muAnalysis.MCSamples import samples
@@ -368,19 +371,14 @@ events_per_job = 50000
 
             if combine_dy_samples and (sample.name == 'zmumu' or 'dy' in sample.name):
                 mass_limits = {
-                    'dy50'     : (  50,    120),
-                    'dy120'    : ( 120,    200),
-                    'dy200'    : ( 200,    400),
-                    'dy400'    : ( 400,    800),
-                    'dy800'    : ( 800,   1400),
-                    'dy1400'   : (1400,   2300),
-                    'dy2300'   : (2300,   3500),
-                    'dy3500'   : (3500,   4500),
-                    'dy4500'   : (4500,   6000),
-                    'dy6000'   : (6000,   7500),
-                    'dy7500'   : (7500,   8500),
-                    'dy8500'   : (8500,   9500),
-                    'dy3500'   : (9500, 100000),
+                    'zmumu'    : (  20,    120),
+                    'dy120_c1' : ( 120,    200),
+                    'dy200_c1' : ( 200,    500),
+                    'dy500_c1' : ( 500,    800),
+                    'dy800_c1' : ( 800,   1000),
+                    'dy1000_c1': (1000,   1500),
+                    'dy1500_c1': (1500,   2000),
+                    'dy2000_c1': (2000, 100000),
                     }
                 lo,hi = mass_limits[sample.name]
                 from SUSYBSMAnalysis.Zprime2muAnalysis.DYGenMassFilter_cfi import dy_gen_mass_cut

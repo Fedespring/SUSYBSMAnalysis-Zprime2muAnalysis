@@ -3,13 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # JMTBAD to drop
 muonTriggerMatchHLTMuons = cms.EDProducer('PATTriggerMatcherDRLessByR',
     src                   = cms.InputTag('cleanPatMuons'),
-    #src                   = cms.InputTag('selectedPatMuons'),#raffa
     matched               = cms.InputTag('patTrigger'),
-    #matchedCuts = cms.string( 'type( "TriggerMuon" ) && path( "HLT_Mu24_v*", 1, 0 )' ),
-    #matchedCuts           = cms.string('type( "TriggerMuon" ) && path("HLT_Mu40*" )'),
-    #matchedCuts           = cms.string('type("TriggerMuon") && path("HLT_Mu40*")'), #raffa
-    #matchedCuts 	= cms.string('filter("hltL3fL1sMu16L1f0L2f16QL3Filtered40Q")'),
-    matchedCuts           = cms.string('type("TriggerMuon") && (path("HLT_Mu9*",1,0) || path("HLT_Mu15*",1,0) || path("HLT_Mu24_v*",1,0)|| path("HLT_Mu24*",1,0) || path("HLT_Mu30*",1,0) || path("HLT_Mu40*",1,0))'),
+    matchedCuts           = cms.string('type("TriggerMuon") && (path("HLT_Mu9*",1,0) || path("HLT_Mu15*",1,0) || path("HLT_Mu24*",1,0) || path("HLT_Mu30*",1,0) || path("HLT_Mu40*",1,0))'),
     maxDPtRel             = cms.double(1),
     maxDeltaR             = cms.double(0.2),
     resolveAmbiguities    = cms.bool(True),

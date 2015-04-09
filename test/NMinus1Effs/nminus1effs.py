@@ -5,18 +5,8 @@ from SUSYBSMAnalysis.Zprime2muAnalysis.Zprime2muAnalysis_cfg import process
 from SUSYBSMAnalysis.Zprime2muAnalysis.HistosFromPAT_cfi import HistosFromPAT
 from SUSYBSMAnalysis.Zprime2muAnalysis.OurSelectionDec2012_cff import loose_cut, trigger_match, tight_cut, allDimuons
 
-readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring() 
-process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-readFiles.extend( [
-       '/store/user/rradogna/ZprimeToMuMu_M-1000_Tune4C_13TeV-pythia8/datamc_zpsi1000/5ae2dc0ad5519e42240ad5a71eb54bed/pat_100_1_Bc7.root',
-       '/store/user/rradogna/ZprimeToMuMu_M-1000_Tune4C_13TeV-pythia8/datamc_zpsi1000/5ae2dc0ad5519e42240ad5a71eb54bed/pat_9_1_RsK.root' ] );
-
-
-secFiles.extend( [
-               ] )
-
-process.maxEvents.input = -1
+process.source.fileNames = ['/store/user/tucker/DYToMuMu_M-20_TuneZ2_7TeV-pythia6/datamc_zmumu/5222c20b53e3c47b6c8353d464ee954c/pat_42_3_74A.root']
+process.maxEvents.input = 1000
 
 # Define the numerators and denominators, removing cuts from the
 # allDimuons maker. "NoX" means remove cut X entirely (i.e. the
@@ -102,23 +92,17 @@ if __name__ == '__main__' and 'submit' in sys.argv:
     crab_cfg = '''
 [CRAB]
 jobtype = cmssw
-#scheduler = condor
-scheduler = remoteGlidein
-
-use_server = 0
+scheduler = condor
 
 [CMSSW]
 datasetpath = %(ana_dataset)s
-#dbs_url = https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet
-dbs_url=phys03
+dbs_url = https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet
 pset = nminus1effs.py
 get_edm_output = 1
 job_control
 
-use_dbs3=1
-
 [USER]
-#ui_working_dir = /crab/crab_ana_nminus1_%(name)s
+ui_working_dir = crab/crab_ana_nminus1_%(name)s
 return_data = 1
 '''
 
@@ -148,8 +132,7 @@ return_data = 1
             new_crab_cfg = crab_cfg % locals()
             job_control = '''
 total_number_of_lumis = -1
-#number_of_jobs = 20
-lumis_per_job = 500
+number_of_jobs = 20
 lumi_mask = tmp.json'''
             new_crab_cfg = new_crab_cfg.replace('job_control', job_control)
             open('crab.cfg', 'wt').write(new_crab_cfg)
@@ -167,7 +150,7 @@ events_per_job = 50000
 ''')
 
         from SUSYBSMAnalysis.Zprime2muAnalysis.MCSamples import *
-        samples = [zpsi1000]#zmumu, ttbar, dy120_c1, dy200_c1, dy500_c1, dy800_c1, dy1000_c1, dy1500_c1, dy2000_c1, inclmu15]
+        samples = [zmumu, ttbar, dy120_c1, dy200_c1, dy500_c1, dy800_c1, dy1000_c1, dy1500_c1, dy2000_c1, inclmu15]
         for sample in samples:
             print sample.name
             open('crab.cfg', 'wt').write(crab_cfg % sample)

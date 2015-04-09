@@ -3,13 +3,8 @@
 import sys, os, datetime, FWCore.ParameterSet.Config as cms
 from tuple_common import process, crab_cfg
 
-#process.source.fileNames = ['/store/data/Run2012A/SingleMu/AOD/13Jul2012-v1/00000/009C369E-85D0-E111-BD58-1CC1DE046FC0.root']
-process.source.fileNames = ['/store/relval/CMSSW_7_0_0/SingleMu/RECO/GR_R_70_V1_RelVal_mu2012A-v2/00000/0035CDF7-9099-E311-A7AE-0026189437F0.root',]
-#process.GlobalTag.globaltag = 'FT_53_V6C_AN4::All'
-#process.GlobalTag.globaltag = 'GR_H_V33::All'
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10_2013', '')
-process.maxEvents.input = 10
+process.source.fileNames = ['/store/data/Run2012A/SingleMu/AOD/13Jul2012-v1/00000/009C369E-85D0-E111-BD58-1CC1DE046FC0.root']
+process.GlobalTag.globaltag = 'FT_53_V21_AN6::All'
 
 from SUSYBSMAnalysis.Zprime2muAnalysis.PATTools import removeMCUse
 removeMCUse(process)
@@ -21,7 +16,7 @@ lumis_per_job = %(lumis_per_job)s
 %(lumi_mask)s
 '''
 
-    lumis_per_job = 30
+    lumis_per_job = 100
     lumi_mask = ''
 
     create_only = 'create_only' in sys.argv
@@ -64,41 +59,19 @@ lumis_per_job = %(lumis_per_job)s
         open('tmp.json', 'wt').write('{' + ', '.join(json) + '}')
         lumi_mask = 'lumi_mask = tmp.json'
 
-        if run1 == 190782 and run2 == 190949:
-            # Special settings for 6-Aug reprocessing of 5 runs
-            dataset = '/SingleMu/Run2012A-recover-06Aug2012-v1/AOD'
-            name    = 'SingleMuRun2012A-recover-06Aug2012'
-            tag     = 'FT_53_V6C_AN4'
-        elif run1 >= 190450 and run1 < 193752:
-            dataset = '/SingleMu/Run2012A-13Jul2012-v1/AOD'
-            name    = 'SingleMuRun2012A-13Jul2012'
-            tag     = 'FT_53_V6C_AN4'
+        tag = 'FT_53_V21_AN6'
+        if run1 >= 190450 and run1 < 193752:
+            dataset = '/SingleMu/Run2012A-22Jan2013-v1/AOD'
+            name    = 'SingleMuRun2012A-22Jan2013'
         elif run1 >= 193752 and run1 < 196532:
-            dataset = '/SingleMu/Run2012B-13Jul2012-v1/AOD'
-            name    = 'SingleMuRun2012B-13Jul2012'
-            tag     = 'FT_53_V6C_AN4'
-        elif run1 >= 197556 and run1 < 198914:
-            dataset = '/SingleMu/Run2012C-24Aug2012-v1/AOD'
-            name    = 'SingleMuRun2012C-24Aug2012'
-            tag     = 'FT53_V10A_AN4'
-        elif run1 == 201191 and run2 == 201191:
-            # Special settings for Dec-11 reprocessing of 1 run
-            # (Recovery of 134/pb for Golden JSON.)
-            dataset = '/SingleMu/Run2012C-EcalRecover_11Dec2012-v1/AOD'
-            name    = 'SingleMuRun2012C-EcalRecover_11Dec2012'
-            tag     = 'GR_P_V42_AN2'            
-        elif run1 >= 198934 and run1 < 203773:
-            dataset = '/SingleMu/Run2012C-PromptReco-v2/AOD'
-            name    = 'SingleMuRun2012C-Prompt'
-            tag     = 'GR_P_V42_AN2'
-        elif run1 == 206066 and run2 == 206066:
-            dataset = '/SingleMu/Run2012D-PromptReco-v1/AOD'
-            name    = 'SingleMuRun2012D-Prompt'
-            tag     = 'GR_P_V42_AN2'
+            dataset = '/SingleMu/Run2012B-22Jan2013-v1/AOD'
+            name    = 'SingleMuRun2012B-22Jan2013'
+        elif run1 >= 197556 and run1 < 203773:
+            dataset = '/SingleMu/Run2012C-22Jan2013-v1/AOD'
+            name    = 'SingleMuRun2012C-22Jan2013'
         elif run1 >= 203773:
-            dataset = '/SingleMu/Run2012D-PromptReco-v1/AOD'
-            name    = 'SingleMuRun2012D-Prompt'
-            tag     = 'GR_P_V42_AN2'
+            dataset = '/SingleMu/Run2012D-22Jan2013-v1/AOD'
+            name    = 'SingleMuRun2012D-22Jan2013'
         else:
             raise ValueError("don't know how to do a run_limits production for run range [%i,%i]" % run_limits)
 
